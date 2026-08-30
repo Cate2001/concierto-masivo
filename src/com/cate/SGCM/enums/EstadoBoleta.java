@@ -1,7 +1,7 @@
 package com.cate.SGCM.enums;
 
 public enum EstadoBoleta {
-    DISPONIBLE,
+    ACTIVO,
     VENDIDO,
     CANCELADO
 }

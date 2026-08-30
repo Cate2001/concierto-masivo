@@ -15,6 +15,8 @@ public class Boleto {
     private final double precioBase;
     private final TipoBoleta tipoBoleta;
     private final Usuario usuario;
+    private Concierto concierto;
+    //falta la silla
 
     public Boleto(double precioBase, TipoBoleta tipoBoleta, Usuario usuario) {
         ValidacionesAtributos.validarDouble(precioBase, "PrecioBase");
@@ -24,7 +26,7 @@ public class Boleto {
         this.vendidoEn = null;
         this.precioBase = precioBase;
         this.tipoBoleta = tipoBoleta;
-        this.estadoBoleta = EstadoBoleta.DISPONIBLE;
+        this.estadoBoleta = EstadoBoleta.ACTIVO;
         this.usuario = usuario;
     }
 

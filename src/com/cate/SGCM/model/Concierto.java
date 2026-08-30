@@ -1,6 +1,5 @@
 package com.cate.SGCM.model;
 
-import com.cate.SGCM.enums.EstadoBoleta;
 import com.cate.SGCM.enums.EstadoConcierto;
 import com.cate.SGCM.util.GeneradorId;
 import com.cate.SGCM.util.ValidacionesAtributos;
@@ -12,8 +11,8 @@ public class Concierto {
     private int id;
     private String nombre;
     private EstadoConcierto estado;
-    private Date fecha;
-    private LocalTime hora;
+    private Date fechaInicio;
+    private LocalTime horaInicio;
     private Estadio estadio;
     private Banda banda;
 
@@ -22,12 +21,12 @@ public class Concierto {
     //el dia que inica el concierto pasa a esatdo en curso
     //el dia que finaliza el concierto pasa a esatdo finalizado
 
-    public Concierto(Date fecha, String nombre, EstadoBoleta estado, LocalTime hora, Estadio estadio, Banda banda) {
+    public Concierto(Date fechaInicio, String nombre, LocalTime horaInicio, Estadio estadio, Banda banda) {
         this.id = GeneradorId.generarIdConcierto();
-        setFecha(fecha);
+        setFechaInicio(fechaInicio);
         setNombre(nombre);
-
-        setHora(hora);
+        this.estado = EstadoConcierto.PROGRAMADO;
+        setHoraInicio(horaInicio);
         setEstadio(estadio);
         setBanda(banda);
     }
@@ -45,22 +44,22 @@ public class Concierto {
         this.nombre = nombre;
     }
 
-    public Date getFecha() {
-        return fecha;
+    public Date getFechaInicio() {
+        return fechaInicio;
     }
 
-    public void setFecha(Date fecha) {
-        ValidacionesAtributos.validarFechaObjeto(fecha);
-        this.fecha = fecha;
+    public void setFechaInicio(Date fechaInicio) {
+        ValidacionesAtributos.validarFechaObjeto(fechaInicio);
+        this.fechaInicio = fechaInicio;
     }
 
-    public LocalTime getHora() {
-        return hora;
+    public LocalTime getHoraInicio() {
+        return horaInicio;
     }
 
-    public void setHora(LocalTime hora) {
-        ValidacionesAtributos.validarObjetosNulo(hora, "Hora");
-        this.hora = hora;
+    public void setHoraInicio(LocalTime horaInicio) {
+        ValidacionesAtributos.validarObjetosNulo(horaInicio, "Hora");
+        this.horaInicio = horaInicio;
     }
 
     public Estadio getEstadio() {
@@ -86,8 +85,8 @@ public class Concierto {
         final StringBuilder sb = new StringBuilder("Concierto{");
         sb.append("id=").append(id);
         sb.append(", nombre='").append(nombre).append('\'');
-        sb.append(", fecha=").append(fecha);
-        sb.append(", hora=").append(hora);
+        sb.append(", fechaInicio=").append(fechaInicio);
+        sb.append(", horaInicio=").append(horaInicio);
         sb.append(", estadio=").append(estadio);
         sb.append(", banda=").append(banda);
         sb.append('}');
