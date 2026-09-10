@@ -12,6 +12,7 @@ public final class GeneradorId {
     private static int contadorIdCancion = 0;
     private static int contadorIdBoleto = 0;
     private static int contadorIdConcierto = 0;
+    private static int contadorIdControlIngreso = 0;
     private static final Random random = new SecureRandom();
     private static final String CARACTERES_ALFANUMERICOS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
@@ -37,6 +38,10 @@ public final class GeneradorId {
 
     public static int generarIdConcierto() {
         return ++contadorIdConcierto;
+    }
+
+    public static int generarIdControlIngreso() {
+        return ++contadorIdControlIngreso;
     }
 
     public static String generarCodigoBoleto() {

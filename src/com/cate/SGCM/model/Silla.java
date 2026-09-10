@@ -42,12 +42,12 @@ class Silla {
         return disponible;
     }
 
-    void desocuparSilla() {
+    public void desocuparSilla() {
         if (disponible) throw new IllegalArgumentException("La silla ya esta desocupada");
         this.disponible = true;
     }
 
-    void ocuparSilla() {
+    public void ocuparSilla() {
         if (!disponible) throw new IllegalArgumentException("La silla ya esta ocupada");
         this.disponible = false;
     }

@@ -16,7 +16,8 @@ public class Boleto {
     private final TipoBoleta tipoBoleta;
     private final Usuario usuario;
     private Concierto concierto;
-    //falta la silla
+
+    //falta como voy a agregar la silla dentro de mi boleto y validar como se deben manejar los estados de manera correcta
 
     public Boleto(double precioBase, TipoBoleta tipoBoleta, Usuario usuario) {
         ValidacionesAtributos.validarDouble(precioBase, "PrecioBase");

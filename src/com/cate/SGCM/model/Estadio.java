@@ -10,7 +10,7 @@ import java.util.List;
 public class Estadio {
     private final int id;
     private String nombre;
-    private final int capacidad;
+    private int capacidad;
     private String ubicacion;
     private final List<Silla> sillasEstadio = new ArrayList<>();
 
@@ -20,6 +20,7 @@ public class Estadio {
         setNombre(nombre);
         this.capacidad = capacidad;
         setUbicacion(ubicacion);
+        agregrarSillas();
     }
 
     public int getId() {
@@ -39,6 +40,13 @@ public class Estadio {
         return capacidad;
     }
 
+    public void setCapacidad(int capacidad) {
+        ValidacionesAtributos.validarCapacidadEstadio(capacidad);
+        sillasEstadio.clear();
+        this.capacidad = capacidad;
+        agregrarSillas();
+    }
+
     public String getUbicacion() {
         return ubicacion;
     }
@@ -53,7 +61,7 @@ public class Estadio {
         sillasEstadio.add(silla);
     }
 
-    public void agregrarSillas() {
+    private void agregrarSillas() {
         ValidacionesAtributos.validarContenidoSillas(sillasEstadio.isEmpty());
         final int FILAS_VIP = (capacidad / 2) / 10;
         final int FILAS_GENERALES = capacidad / 10;
