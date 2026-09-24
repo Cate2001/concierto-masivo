@@ -6,7 +6,8 @@ El proyecto demuestra dominio de **colecciones de Java** (List, Set, Map), **com
 
 ---
 
-## Objetivo del Proyecto
+## Objetivo del Proyecto.
+
 
 - Dominar la elección de colecciones de Java según criterios funcionales y de rendimiento (Big-O)
 - Aplicar la arquitectura por capas (model, repository, services, util, enums, app) en un sistema real
@@ -78,7 +79,7 @@ src/com/cate/SGCM/
 - **Concierto**: evento programado (PROGRAMADO, EN_CURSO, FINALIZADO).
 - **Estadio**: recinto con disposición de sillas por categoría.
 - **Silla**: ubicaciones organizadas por zona dentro del estadio.
-- **Boleto**: compra de acceso clasificada por tipo (VIP $150.00, General $50.00) y estado (DISPONIBLE, VENDIDO).
+- **Boleto**: compra de acceso clasificada por tipo (VIP $150.00, General $50.00) y estado (ACTIVO, VENDIDO, CANCELADO).
 - **ControlEntrada**: validación de acceso de asistentes en el día del evento
 
 ### Colecciones Utilizadas
@@ -89,8 +90,8 @@ src/com/cate/SGCM/
 
 ### Enumeradores
 
-- `EstadoBoleta`: DISPONIBLE, VENDIDO
-- `EstadoConcierto`: PROGRAMADO, EN_CURSO, FINALIZADO
+- `EstadoBoleta`: ACTIVO, VENDIDO, CANCELADO
+- `EstadoConcierto`: PROGRAMADO, EN_CURSO, FINALIZADO, CANCELADO
 - `Genero`: MASCULINO, FEMENINO
 - `GeneroMusical`: POP, ROCK, JAZZ, ELECTRONICA, CLASICA, FOLK, HIP_HOP, BLUES
 - `TipoBoleta`: VIP (zona "VIP", $150.00), GENERAL (zona "General", $50.00)
@@ -147,26 +148,89 @@ java -cp out com.cate.SGCM.app.Main
 - Servicios de negocio: **3**
 - Enumeradores: **5**
 - Clases de utilidad: **2**
-- Lineas de codigo: **~890** (sin lineas vacias)
+- Lineas de codigo: **~943** (sin lineas vacias)
 
 ---
 
 ## Estado de Desarrollo
 
-- Arquitectura por capas completa (app, model, repository, services, util, enums)
-- Registro de usuarios con validacion de unicidad
-- Consulta de usuarios registrados
-- Generacion de IDs y validacion de atributos de dominio
+### Resumen por Capa
 
-**Nota tecnica**: el codigo fue movido recientemente desde el proyecto `ejercicios-logica` a este repositorio independiente. La declaracion de paquetes (`com.cate.practica.nuevos.conceptos.colecciones.SGCM.*`) aun no se ha actualizado a la nueva estructura de directorios (`com.cate.SGCM.*`). Antes de compilar, la declaracion de paquetes debe sincronizarse con la ruta fisica de las clases.
+| Capa | Estado | Detalle |
+|---|---|---|
+| `model` | ⚠️ Parcial | Entidades mayormente implementadas; `Boleto` e integración de `Silla` pendiente |
+| `enums` | ✅ Completo | 5 enums funcionales y usados |
+| `repository` | ⚠️ Parcial | Persistencia en memoria funcional; faltan operaciones find/update/delete en algunos |
+| `services` | ❌ Incompleto | Solo `UsuarioService` tiene lógica; los otros 2 están vacíos |
+| `util` | ✅ Completo | Utilitarios funcionales |
+| `app` | ⚠️ Parcial | Solo demuestra registro y consulta de usuarios |
+
+### Detalle por Entidad / Clase
+
+| Clase | Estado | Observaciones |
+|---|---|---|
+| `Usuario` | ✅ Completo | Validaciones y unicidad por identificación |
+| `Banda` | ⚠️ Menores | `buscarCancion` con argumentos invertidos en validación |
+| `Cancion` | ✅ Completo | |
+| `Concierto` | ⚠️ Parcial | Faltan transiciones de estado (PROGRAMADO → EN_CURSO → FINALIZADO) |
+| `Estadio` | ⚠️ Parcial | Genera sillas correctamente; falta getter de `sillasEstadio` |
+| `Silla` | ✅ Completo | |
+| `Boleto` | ⚠️ Parcial | Falta integrar `Silla`; el precio calculado se descarta |
+| `ControlEntrada` | ✅ Completo | |
+| `UsuarioRepository` | ✅ Completo | Persistencia en `HashSet` |
+| `BandaRepository` | ✅ Completo | |
+| `BoletoRepository` | ⚠️ Bug | `buscarBoletosActivosUsuario` no filtra realmente por estado |
+| `ConciertoRepository` | ⚠️ Mínimo | Solo add y list, sin find/update/delete |
+| `EstadioRepository` | ✅ Completo | |
+| `ControlIngresoRepository` | ✅ Completo | |
+| `UsuarioService` | ⚠️ Parcial | `actualizarUsuario()` es stub vacío |
+| `TaquillaVentaService` | ❌ Vacío | Sin implementación |
+| `IngresoService` | ❌ Vacío | Sin implementación |
+| `GeneradorId` | ✅ Completo | |
+| `ValidacionesAtributos` | ✅ Completo | |
+
+### Funcionalidades Implementadas
+
+- ✅ Arquitectura por capas (app, model, repository, services, util, enums)
+- ✅ Registro de usuarios con validación de unicidad
+- ✅ Consulta de usuarios registrados
+- ✅ Generación automática de IDs
+- ✅ Validaciones de dominio con excepciones y mensajes claros
+- ✅ Generación de sillas del estadio por zona (VIP/General)
+- ✅ Gestión de canciones por banda (agregar, eliminar, buscar)
+
+### Funcionalidades Pendientes
+
+- ❌ `actualizarUsuario()` en `UsuarioService` (método sin implementar, no compila)
+- ❌ Lógica de venta de boletas (`TaquillaVentaService`)
+- ❌ Control de ingresos al concierto (`IngresoService`)
+- ❌ Integración de `Silla` dentro de `Boleto`
+- ❌ Transiciones de estado del `Concierto`
+- ❌ Métodos de actualización y eliminación en repositorios
 
 ---
 
 ## Roadmap de Mejoras Futuras
 
-- [ ] Sincronizar declaracion de paquetes con la estructura de directorios
-- [ ] Completar la logica de venta de boletas (TaquillaVentaService)
-- [ ] Implementar control de ingresos por concierto (IngresoService)
+### Correcciones Pendientes
+
+- [ ] Corregir `BoletoRepository.buscarBoletosActivosUsuario` para filtrar por estado real
+- [ ] Corregir argumentos invertidos en `Banda.buscarCancion`
+- [ ] Completar `actualizarUsuario()` en `UsuarioService`
+- [ ] Agregar getter de `sillasEstadio` en `Estadio`
+- [ ] Corregir uso de excepción como control de flujo en `Banda.eliminarCancion`
+
+### Funcionalidades por Implementar
+
+- [ ] Completar la logica de venta de boletas (`TaquillaVentaService`)
+- [ ] Implementar control de ingresos por concierto (`IngresoService`)
+- [ ] Integrar `Silla` dentro de `Boleto` (asignación de asiento al comprar)
+- [ ] Implementar transiciones de estado en `Concierto`
+- [ ] Métodos find/update/delete en repositorios incompletos
+- [ ] Almacenar el precio calculado de la boleta al momento de venta
+
+### Evolución del Proyecto
+
 - [ ] Agregar pruebas automaticas con JUnit 5
 - [ ] Aplicar principios SOLID avanzados y patrones de diseno
 - [ ] Agregar persistencia real con JDBC/JPA
