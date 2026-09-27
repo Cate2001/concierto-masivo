@@ -1,8 +1,6 @@
 package com.cate.SGCM.services;
 
 
-import com.cate.SGCM.repository.BoletoRepository;
-import com.cate.SGCM.repository.UsuarioRepository;
 import com.cate.SGCM.model.*;
 import com.cate.SGCM.util.ValidacionesAtributos;
 
