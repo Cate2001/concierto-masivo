@@ -2,12 +2,11 @@
 
 Sistema de gestión de conciertos masivos desarrollado en Java, que aplica el framework de Colecciones de Java y una arquitectura por capas profesional. Simula un escenario real del entorno corporativo: registro de usuarios, venta de boletas, organización de estadios y control de ingresos a eventos musicales.
 
-El proyecto demuestra dominio de **colecciones de Java** (List, Set, Map), **complejidad algorítmica (Big-O)**, **Repository Pattern**, **Service Layer** y principios de **Clean Code** y **SOLID**.
+El proyecto demuestra dominio de **colecciones de Java** (List, Set, Map), **complejidad algorítmica (Big-O)**, **generics**, **Repository Pattern**, **Service Layer** y principios de **Clean Code** y **SOLID**.
 
 ---
 
-## Objetivo del Proyecto.
-
+## Objetivo del Proyecto
 
 - Dominar la elección de colecciones de Java según criterios funcionales y de rendimiento (Big-O)
 - Aplicar la arquitectura por capas (model, repository, services, util, enums, app) en un sistema real
@@ -36,17 +35,13 @@ src/com/cate/SGCM/
 │   ├── Boleto.java
 │   ├── Cancion.java
 │   ├── Concierto.java
-│   ├── ControlEntrada.java
+│   ├── ControlIngreso.java
 │   ├── Estadio.java
 │   ├── Silla.java
 │   └── Usuario.java
 ├── repository/             # Persistencia en memoria (simula base de datos)
-│   ├── BandaRepository.java
-│   ├── BoletoRepository.java
-│   ├── ConciertoRepository.java
-│   ├── ControlEntradaRepository.java
-│   ├── EstadioRepository.java
-│   └── UsuarioRepository.java
+│   ├── ControlIngreso.java
+│   └── RepositorioGenerico.java
 ├── services/               # Lógica de negocio
 │   ├── IngresoService.java
 │   ├── TaquillaVentaService.java
@@ -62,10 +57,25 @@ src/com/cate/SGCM/
 |---|---|
 | `app` | Punto de entrada; orquesta los servicios y valida el flujo completo |
 | `model` | Entidades de negocio y sus reglas de dominio (encapsulamiento) |
-| `repository` | Simulación de persistencia con colecciones en memoria |
+| `repository` | Persistencia con colecciones en memoria; aísla al resto del sistema del mecanismo de almacenamiento |
 | `services` | Lógica de negocio pura, coordinando repositorios y aplicando validaciones |
 | `enums` | Valores fijos del dominio (estados, géneros, tipos de boleta) |
 | `util` | Utilidades genéricas (generación de IDs, validación de atributos) |
+
+La dependencia entre capas fluye en un solo sentido: `app` → `services` → `repository` → `model`. Ninguna capa interna conoce a las capas que la invocan, lo que permite sustituir la persistencia en memoria por una base de datos real sin modificar los servicios.
+
+### Repository Pattern
+
+`RepositorioGenerico<T, ID>` implementa el CRUD sobre un `Map<ID, T>`, de modo que los repositorios de entidad reutilizan la misma lógica de persistencia en lugar de duplicarla:
+
+| Operación | Complejidad | Implementación |
+|---|---|---|
+| `guardarInformacion` | O(1) promedio | `Map.put` |
+| `buscarRegistro` | O(1) promedio | `Map.get` |
+| `eliminarRegistro` | O(1) promedio | `Map.remove` |
+| `listarRegistros` | O(n) | Copia defensiva de `Map.values()` a `ArrayList` |
+
+El parámetro `ID` corresponde al identificador natural de cada entidad, lo que permite que el `Map` funcione como índice y no solo como almacenador.
 
 ---
 
@@ -73,20 +83,23 @@ src/com/cate/SGCM/
 
 ### Modelo de Dominio
 
-- **Usuario**: identificación, datos personales y género. Registro único por identificación.
-- **Banda**: agrupación musical con canciones asociadas.
-- **Cancion**: repertorio de cada banda.
-- **Concierto**: evento programado (PROGRAMADO, EN_CURSO, FINALIZADO).
-- **Estadio**: recinto con disposición de sillas por categoría.
-- **Silla**: ubicaciones organizadas por zona dentro del estadio.
-- **Boleto**: compra de acceso clasificada por tipo (VIP $150.00, General $50.00) y estado (ACTIVO, VENDIDO, CANCELADO).
-- **ControlEntrada**: validación de acceso de asistentes en el día del evento
+- **Usuario**: identificación, datos personales y género. Unicidad por `identificacion` mediante `equals` y `hashCode`.
+- **Banda**: agrupación musical con género, año de fundación y canciones asociadas en un `Set<Cancion>`.
+- **Cancion**: repertorio de cada banda (nombre, género musical, duración, año de lanzamiento).
+- **Concierto**: evento programado con fecha, hora, estadio y banda asociadas.
+- **Estadio**: recinto con disposición de sillas por categoría, generada a partir de la capacidad declarada.
+- **Silla**: ubicación por fila y columna, con categoría y control de disponibilidad.
+- **Boleto**: acceso clasificado por tipo y estado, con marcas de tiempo de creación, venta y cancelación.
+- **ControlIngreso**: registro de acceso de un asistente al evento, con fecha de ingreso y boleto asociado.
 
 ### Colecciones Utilizadas
 
-- **ArrayList**: almacenamiento de bandas, boletas, conciertos y estadios en los repositorios. Acceso por índice en O(1) e iteración eficiente.
-- **HashSet**: usuarios y bandas sin duplicados. Inserción y búsqueda en O(1) promedio, garantizando unicidad por `hashCode`.
-- **LinkedHashSet**: mantiene orden de inserción de bandas conservando la unicidad del Set.
+Cada colección responde a criterios funcionales **y** de rendimiento:
+
+- **HashMap**: almacén interno de `RepositorioGenerico`. Inserción, búsqueda y eliminación en O(1) promedio, frente al O(n) que exigiría recorrer una lista de forma lineal.
+- **ArrayList**: sillas del estadio y resultados de listado. Acceso por índice en O(1) e iteración eficiente con caché de CPU, además de conservar el orden de inserción.
+- **HashSet**: canciones de cada banda. Inserción y búsqueda en O(1) promedio, garantizando la unicidad del repertorio por `hashCode` sin verificación adicional.
+- **Set\<Usuario\>**: contrato de retorno del servicio de usuarios, coherente con la garantía de unicidad por identificación.
 
 ### Enumeradores
 
@@ -94,17 +107,20 @@ src/com/cate/SGCM/
 - `EstadoConcierto`: PROGRAMADO, EN_CURSO, FINALIZADO, CANCELADO
 - `Genero`: MASCULINO, FEMENINO
 - `GeneroMusical`: POP, ROCK, JAZZ, ELECTRONICA, CLASICA, FOLK, HIP_HOP, BLUES
-- `TipoBoleta`: VIP (zona "VIP", $150.00), GENERAL (zona "General", $50.00)
+- `TipoBoleta`: VIP (zona "VIP", $150.00), GENERAL (zona "General", $50.00) — enum con atributos, que encapsula el precio y la zona de cada tipo de boleta
 
 ### Buenas Prácticas Implementadas
 
-- Separación de responsabilidades en capas
-- Repository Pattern con persistencia en memoria
-- Validaciones de dominio con excepciones y mensajes claros
-- Encapsulamiento con atributos privados y acceso controlado
-- Enumeraciones para valores fijos del dominio
-- Generación automática de IDs de entidades
-- Manejo de duplicados mediante colecciones Set
+- Separación de responsabilidades en capas con dependencias en un solo sentido
+- Repository Pattern genérico con persistencia en memoria
+- Copia defensiva en los listados, para no exponer el estado interno del repositorio
+- Validaciones centralizadas en `ValidacionesAtributos` con mensajes claros y tipado del campo
+- Encapsulamiento con atributos privados y setters que validan antes de asignar
+- Enumeraciones para valores fijos del dominio, con atributos donde el valor requiere información adicional
+- Generación automática de IDs por entidad y códigos de boleto aleatorios
+- `equals` y `hashCode` en las entidades que participan como elementos de colecciones
+- `LocalDateTime` para marcas temporales y `StringBuilder` en las implementaciones de `toString`
+- Constantes en `UPPER_SNAKE_CASE` para los parámetros de la generación de sillas
 
 ---
 
@@ -126,8 +142,18 @@ src/com/cate/SGCM/
 
 ### Compilacion por terminal
 
+Desde la raíz del proyecto:
+
 ```bash
-javac -d out -encoding UTF-8 src/com/cate/SGCM/**/*.java
+# Linux / macOS
+find src -name "*.java" > sources.txt && javac -d out -encoding UTF-8 @sources.txt
+java -cp out com.cate.SGCM.app.Main
+```
+
+```powershell
+# Windows PowerShell
+Get-ChildItem -Recurse -Filter *.java -Path src | ForEach-Object { $_.FullName } | Out-File sources.txt
+javac -d out -encoding UTF-8 @sources.txt
 java -cp out com.cate.SGCM.app.Main
 ```
 
@@ -140,101 +166,15 @@ java -cp out com.cate.SGCM.app.Main
 
 ---
 
-## Metricas del Proyecto
+## Roadmap de Evolución
 
-- Total de archivos Java: **25**
-- Entidades de negocio (model): **8**
-- Repositorios en memoria: **6**
-- Servicios de negocio: **3**
-- Enumeradores: **5**
-- Clases de utilidad: **2**
-- Lineas de codigo: **~943** (sin lineas vacias)
-
----
-
-## Estado de Desarrollo
-
-### Resumen por Capa
-
-| Capa | Estado | Detalle |
-|---|---|---|
-| `model` | ⚠️ Parcial | Entidades mayormente implementadas; `Boleto` e integración de `Silla` pendiente |
-| `enums` | ✅ Completo | 5 enums funcionales y usados |
-| `repository` | ⚠️ Parcial | Persistencia en memoria funcional; faltan operaciones find/update/delete en algunos |
-| `services` | ❌ Incompleto | Solo `UsuarioService` tiene lógica; los otros 2 están vacíos |
-| `util` | ✅ Completo | Utilitarios funcionales |
-| `app` | ⚠️ Parcial | Solo demuestra registro y consulta de usuarios |
-
-### Detalle por Entidad / Clase
-
-| Clase | Estado | Observaciones |
-|---|---|---|
-| `Usuario` | ✅ Completo | Validaciones y unicidad por identificación |
-| `Banda` | ⚠️ Menores | `buscarCancion` con argumentos invertidos en validación |
-| `Cancion` | ✅ Completo | |
-| `Concierto` | ⚠️ Parcial | Faltan transiciones de estado (PROGRAMADO → EN_CURSO → FINALIZADO) |
-| `Estadio` | ⚠️ Parcial | Genera sillas correctamente; falta getter de `sillasEstadio` |
-| `Silla` | ✅ Completo | |
-| `Boleto` | ⚠️ Parcial | Falta integrar `Silla`; el precio calculado se descarta |
-| `ControlEntrada` | ✅ Completo | |
-| `UsuarioRepository` | ✅ Completo | Persistencia en `HashSet` |
-| `BandaRepository` | ✅ Completo | |
-| `BoletoRepository` | ⚠️ Bug | `buscarBoletosActivosUsuario` no filtra realmente por estado |
-| `ConciertoRepository` | ⚠️ Mínimo | Solo add y list, sin find/update/delete |
-| `EstadioRepository` | ✅ Completo | |
-| `ControlIngresoRepository` | ✅ Completo | |
-| `UsuarioService` | ⚠️ Parcial | `actualizarUsuario()` es stub vacío |
-| `TaquillaVentaService` | ❌ Vacío | Sin implementación |
-| `IngresoService` | ❌ Vacío | Sin implementación |
-| `GeneradorId` | ✅ Completo | |
-| `ValidacionesAtributos` | ✅ Completo | |
-
-### Funcionalidades Implementadas
-
-- ✅ Arquitectura por capas (app, model, repository, services, util, enums)
-- ✅ Registro de usuarios con validación de unicidad
-- ✅ Consulta de usuarios registrados
-- ✅ Generación automática de IDs
-- ✅ Validaciones de dominio con excepciones y mensajes claros
-- ✅ Generación de sillas del estadio por zona (VIP/General)
-- ✅ Gestión de canciones por banda (agregar, eliminar, buscar)
-
-### Funcionalidades Pendientes
-
-- ❌ `actualizarUsuario()` en `UsuarioService` (método sin implementar, no compila)
-- ❌ Lógica de venta de boletas (`TaquillaVentaService`)
-- ❌ Control de ingresos al concierto (`IngresoService`)
-- ❌ Integración de `Silla` dentro de `Boleto`
-- ❌ Transiciones de estado del `Concierto`
-- ❌ Métodos de actualización y eliminación en repositorios
-
----
-
-## Roadmap de Mejoras Futuras
-
-### Correcciones Pendientes
-
-- [ ] Corregir `BoletoRepository.buscarBoletosActivosUsuario` para filtrar por estado real
-- [ ] Corregir argumentos invertidos en `Banda.buscarCancion`
-- [ ] Completar `actualizarUsuario()` en `UsuarioService`
-- [ ] Agregar getter de `sillasEstadio` en `Estadio`
-- [ ] Corregir uso de excepción como control de flujo en `Banda.eliminarCancion`
-
-### Funcionalidades por Implementar
-
-- [ ] Completar la logica de venta de boletas (`TaquillaVentaService`)
-- [ ] Implementar control de ingresos por concierto (`IngresoService`)
-- [ ] Integrar `Silla` dentro de `Boleto` (asignación de asiento al comprar)
-- [ ] Implementar transiciones de estado en `Concierto`
-- [ ] Métodos find/update/delete en repositorios incompletos
-- [ ] Almacenar el precio calculado de la boleta al momento de venta
-
-### Evolución del Proyecto
-
-- [ ] Agregar pruebas automaticas con JUnit 5
-- [ ] Aplicar principios SOLID avanzados y patrones de diseno
-- [ ] Agregar persistencia real con JDBC/JPA
-- [ ] Exponer el sistema como API REST con Spring Boot
+- [ ] Pruebas unitarias automatizadas con JUnit 5
+- [ ] Paquete `exceptions` con excepciones propias del dominio
+- [ ] Paquete `interfaces` con contratos entre capas
+- [ ] Repositorios de entidad construidos sobre `RepositorioGenerico`
+- [ ] Integración de la asignación de asientos en la venta de boletas
+- [ ] Persistencia real con JDBC/JPA
+- [ ] Exposición del sistema como API REST con Spring Boot
 
 ---
 
