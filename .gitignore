@@ -4,9 +4,7 @@ out/
 !**/src/test/**/out/
 .kotlin/
 .idea/
-sistema-concierto.iml/
-AGENTS.md
-sistema-concierto.iml
+concierto-master.iml
 
 ### Eclipse ###
 .apt_generated
