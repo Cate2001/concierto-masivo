@@ -4,6 +4,10 @@ out/
 !**/src/test/**/out/
 .kotlin/
 .idea/
+
+# Memoria de trabajo del agente: contiene bugs y errores internos, no es publica
+MEMORY.md
+
 concierto-master.iml
 
 ### Eclipse ###

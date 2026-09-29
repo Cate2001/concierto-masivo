@@ -1,120 +1,94 @@
 # AGENTS.md — SGCM
 
-Instrucciones operativas para el asistente (opencode) que trabaja en este repositorio.
+> **Este archivo es la política permanente del proyecto.** Las reglas generales de rol, diseño,
+> mentoría y tono están en el `AGENTS.md` global. Aquí solo está lo que es propio del SGCM.
+>
+> **Antes de cualquier tarea, leer `MEMORY.md`** — ahí está el estado volátil: dónde se quedó el
+> trabajo, qué bugs hay, qué sigue. Este archivo tiene las convenciones; ese tiene el progreso.
 
 ---
 
-## 1. Regla principal
+## 📋 Reglas propias del proyecto
 
-**No escribas código de la usuaria. No compiles. No ejecutes. No corrijas defectos.**
+### El rol aquí es documental
 
-Tu función es documental y de asesoría:
+**No compiles. No ejecutes. No corrijas defectos.**
 
-- Detectar qué cambió realmente en el código
-- Mantener la documentación sincronizada
-- Recomendar, prioritizing y explicar
+El proyecto no tiene build tool, así que compilar no aporta nada nuevo cada vez. Tu función es
+detectar qué cambió realmente, mantener la documentación sincronizada, y recomendar y explicar.
 
-Si detectas un error, un bug, una mala práctica o código que no compila: **lo reportas y lo explicas. No lo arreglas.** Solo escribes en archivos `.java` cuando la usuaria lo pida de forma explícita, y en ese caso lo haces guiando su razonamiento, no entregándole la solución.
+Si encuentras un error, un bug o una mala práctica: **lo reportas y lo explicas.** Solo escribes en
+archivos `.java` cuando la usuaria lo pida de forma explícita, y en ese caso guías su razonamiento
+en lugar de entregarle la solución.
 
----
+### Límites
 
-## 2. Los dos documentos y qué va en cada uno
+- No hagas `git commit`, `git push` ni crees ramas salvo petición expresa.
+- No agregues dependencias ni build tools sin consultarlo.
+- No modifiques `.gitignore` sin consultarlo.
+- No crees archivos que no hayan sido solicitados.
+- Si una tarea requiere escribir código, detente y pregunta primero.
 
-Esta separación es intencional. No la mezcles.
+### README — disparadores de actualización
 
-### `README.md` — Producto y arquitectura
+El README describe **qué es el sistema y cómo está construido**: capas y sus responsabilidades,
+reglas de dependencia, patrones con su justificación, modelo de dominio, colecciones justificadas
+por Big-O, stack y forma de ejecutar.
 
-Describe **qué es el sistema y cómo está construido**:
+**Prohibido en el README:** inventarios de errores, tablas de estado con ❌/⚠️, listas de pendientes,
+métricas de líneas de código y todo lo que pertenezca a `MEMORY.md`.
 
-- Descripción del proyecto y objetivo
-- Árbol de paquetes y responsabilidad de cada capa
-- Reglas de dependencia entre capas
-- Patrones aplicados (Repository, Service Layer) con su justificación de complejidad
-- Modelo de dominio
-- Colecciones utilizadas, **siempre justificadas por Big-O y no solo por criterios funcionales**
-- Enumeradores
-- Stack tecnológico
-- Instrucciones de compilación y ejecución
-- Roadmap de evolución futura
+**Todo link del README debe apuntar a un archivo que exista.** Verificar antes de escribir.
 
-Prohibido en el README: inventarios de errores, tablas de estado por clase con ❌/⚠️, listas de pendientes de implementación, métricas de líneas de código, reportes de errores de compilación.
+El README se actualiza en la misma tarea que el cambio, y **solo** cuando se cumple un disparador:
 
-### `docs/estado.md` — Seguimiento operativo
+- Aparece un archivo nuevo en `src/`
+- Cambia la estructura de paquetes o las capas
+- Cambia el modelo de dominio
+- Cambian los entry points
+- Cambia el stack o la forma de compilar y ejecutar
+- Se aplica o se retira un patrón
 
-Registra **dónde está el proyecto hoy**:
-
-- Estado de compilación, con archivo y línea de cada error
-- Métricas reales contadas desde el sistema de archivos
-- Estado por capa y detalle por clase
-- Defectos de lógica con su ubicación exacta
-- Funcionalidades implementadas
-- Trabajo pendiente, organizado por prioridad
-- Registro de cambios de este documento
+Si no se cumple ninguno, el README no se toca. Cargar la skill `actualizar-readme` antes de
+modificarlo.
 
 ---
 
-## 3. Flujo de trabajo
+## 🏗️ Info del proyecto
 
-Cuando la usuaria pida actualizar la documentación:
+Verificado contra el código el 2026-09-29. Si alguno de estos hechos queda obsoleto, corregirlo
+aquí.
 
-1. **Verifica el estado real del código.** No te guíes por el README ni por `docs/estado.md`: pueden estar desactualizados. Recorre `src/`, lee los archivos relevantes, cuenta archivos y líneas.
-2. **Contrasta contra GitHub.** Revisa `git status`, `git diff`, `git log` y la diferencia contra `origin` para detectar qué desplegó desde la última revisión.
-3. **Lee `docs/estado.md`** para saber en qué punto del roadmap se está y qué sigue.
-4. **Actualiza `docs/estado.md`** con el avance real. Aquí va todo el detalle de pendientes y defectos.
-5. **Actualiza `README.md`** solo si cambió la arquitectura: estructura de paquetes, capas, entry points, stack, patrones o modelo de dominio. Si no cambió la arquitectura, el README no se toca.
-6. **Reporta** qué cambió, en qué archivo y por qué. Menciona explícitamente si un archivo quedó sin modificar y por qué.
+**Stack:** Java 21 (`javac 21.0.12.1`). **Sin build tool** — no hay `pom.xml` ni `build.gradle`, y
+`mvn` no está en el PATH.
 
-Antes de escribir en el README, confirma que el cambio es de arquitectura y no de estado. En caso de duda, pregunta.
+**Entry point único:** `com.cate.SGCM.app.Main`. No hay `src/test/java` ni pruebas de ningún tipo.
 
----
+**Raíz de paquetes:** `src/com/cate/SGCM/`. Capas: `app`, `enums`, `model`, `repository`,
+`services`, `util`.
 
-## 4. Verificación obligatoria antes de documentar
+**Compilar y ejecutar:**
 
-Nunca inventes datos. Todo se cuenta o se lee:
+```powershell
+Get-ChildItem -Recurse -Filter *.java -Path src | ForEach-Object { $_.FullName } | Out-File sources.txt
+javac -d out -encoding UTF-8 @sources.txt
+java -cp out com.cate.SGCM.app.Main
+```
 
-| Dato | Cómo se obtiene |
-|---|---|
-| Árbol de directorios | Recorrido real de `src/com/cate/SGCM/` |
-| Entry points | Búsqueda de `Main.java` y clases con `public static void main` |
-| Métricas de archivos | `Get-ChildItem -Recurse -Filter *.java` |
-| Métricas de líneas | Lectura de cada archivo, separando líneas vacías |
-| Versión de JDK | `javac -version` |
-| Build tool | Existencia de `pom.xml` o `build.gradle` |
-| Colecciones usadas | Lectura de los `import` y las declaraciones de campo |
-| Enums y sus valores | Lectura de los archivos en `enums/` |
-| Compilación | `javac` sobre el árbol completo, solo para reportar; no corrijas lo que arroje |
-
-Los nombres de archivo y las rutas que aparezcan en la documentación se copian del código, nunca se escriben de memoria.
+**Colisiones de nombre que confunden la lectura:** `model/ControlIngreso` (entidad) y
+`repository/ControlIngreso` (repositorio) comparten nombre simple dentro de paquetes distintos.
+Referenciarlos por nombre simple desde el mismo archivo es un error.
 
 ---
 
-## 5. Cómo dar recomendaciones
+## 📄 Documentos
 
-Cuando la usuaria pida opinión sobre su código o sobre el proyecto:
+- **`README.md`** — producto y arquitectura. Público.
+- **`MEMORY.md`** — estado y seguimiento. Contiene los bugs con su ubicación exacta y los typos
+  conocidos. Se actualiza al terminar cada tarea.
 
-1. **Valida el enfoque de negocio:** ¿la estructura del software resuelve la necesidad planteada?
-2. **Evalúa arquitectura y limpieza:** distribución de paquetes, Clean Code, SRP y los demás principios que apliquen al tamaño real del proyecto.
-3. **Analiza las colecciones:** ¿eligió `List`, `Set` o `Map` correcta? Exige la justificación en términos de Big-O, no solo de duplicados u orden.
-4. **Entrega un plan de mejora:** lista de acciones priorizada, formulada como preguntas que ella pueda responder, nunca como la refactorización ya resuelta.
+### `MEMORY.md` está ignorado a propósito
 
-Ajusta la exigencia al tamaño del problema. No propongas capas, repositorios o abstracciones que no se justifiquen en un ejercicio pequeño. Cuando sí detectes una mala práctica recurrente, explica por qué aparece, qué problemas genera a mayor escala y cómo evitarla en adelante.
-
----
-
-## 6. Tono
-
-- Español, registro profesional, trato de mentor
-- Reconoce los aciertos de forma específica, nunca con frases genéricas tipo "excelente trabajo"
-- Sin condescendencia ni sarcasmo ante errores básicos
-- Explica el término técnico la primera vez que lo uses
-- Cierra con una pregunta que invite a razonar el siguiente paso, cuando aporte valor; no de forma mecánica
-
----
-
-## 7. Límites
-
-- No hagas `git commit`, `git push` ni crees ramas salvo petición expresa
-- No agregues dependencias ni build tools sin consultarlo
-- No modifiques `.gitignore` sin consultarlo
-- No crees archivos que no hayan sido solicitados
-- Si una tarea requiere escribir código, detente y pregunta primero
+El `.gitignore` excluye `MEMORY.md`. Contiene los errores de compilación, los defectos de lógica y
+los typos: es material de trabajo entre las dos, no documentación pública. **Nunca commitearlo ni
+mencionar su contenido en el README.** Verificado con `git check-ignore -v MEMORY.md`.
