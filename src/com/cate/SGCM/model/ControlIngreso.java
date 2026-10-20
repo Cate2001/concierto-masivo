@@ -5,6 +5,12 @@ import com.cate.SGCM.util.ValidacionesAtributos;
 
 import java.time.LocalDateTime;
 
+/**
+ * Registro de la entrada de un asistente al recinto, a partir de un {@link Boleto}.
+ *
+ * Se crea ya marcado como ingresado y guarda el instante del acceso; es evidencia de que el
+ * boleto se usó, no un estado editable.
+ */
 public class ControlIngreso {
     private int id;
     private LocalDateTime fechaIngreso;
@@ -12,7 +18,7 @@ public class ControlIngreso {
     private boolean ingresoRegistrado;
 
     public ControlIngreso(Boleto boleto) {
-        ValidacionesAtributos.validarObjetosNulo(boleto, "Boleto");
+        ValidacionesAtributos.validarObjetoNulo(boleto, "boleto");
         this.id = GeneradorId.generarIdControlIngreso();
         this.fechaIngreso = LocalDateTime.now();
         this.boleto = boleto;
@@ -27,7 +33,7 @@ public class ControlIngreso {
         return boleto;
     }
 
-    public boolean getIngresoRegistrado() {
+    public boolean isIngresoRegistrado() {
         return ingresoRegistrado;
     }
 

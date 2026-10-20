@@ -1,25 +1,30 @@
 package com.cate.SGCM.model;
 
-import com.cate.SGCM.enums.Genero;
+import com.cate.SGCM.enums.GeneroPersona;
+import com.cate.SGCM.exception.EdadInvalidaException;
 import com.cate.SGCM.util.GeneradorId;
 import com.cate.SGCM.util.ValidacionesAtributos;
 
-import java.util.Objects;
-
+/**
+ * Persona que compra boletos para un {@link Concierto}.
+ *
+ * Los datos de identificación (nombre, apellido, edad, género) se validan al asignarse; la
+ * identificación debe ser un número positivo y la edad, la mínima del sistema.
+ */
 public class Usuario {
     private final int id;
     private String nombre;
     private String apellido;
     private int edad;
-    private Genero genero;
+    private GeneroPersona generoPersona;
     private int identificacion;
 
-    public Usuario(String nombre, String apellido, int edad, Genero genero, int identificacion) {
+    public Usuario(String nombre, String apellido, int edad, GeneroPersona generoPersona, int identificacion) {
         this.id = GeneradorId.generarIdUsuario();
         setNombre(nombre);
         setApellido(apellido);
         setEdad(edad);
-        setGenero(genero);
+        setGenero(generoPersona);
         setIdentificacion(identificacion);
     }
 
@@ -32,7 +37,7 @@ public class Usuario {
     }
 
     public void setNombre(String nombre) {
-        ValidacionesAtributos.validarNullVacio(nombre, "Nombre");
+        ValidacionesAtributos.validarNullVacio(nombre, "nombre");
         this.nombre = nombre;
     }
 
@@ -41,7 +46,7 @@ public class Usuario {
     }
 
     public void setApellido(String apellido) {
-        ValidacionesAtributos.validarNullVacio(apellido, "Apellido");
+        ValidacionesAtributos.validarNullVacio(apellido, "apellido");
         this.apellido = apellido;
     }
 
@@ -49,18 +54,24 @@ public class Usuario {
         return edad;
     }
 
+    /**
+     * Asigna la edad del usuario.
+     *
+     * @param edad edad en años; debe ser mayor o igual al mínimo permitido
+     * @throws EdadInvalidaException si {@code edad} es menor que 18
+     */
     public void setEdad(int edad) {
-        ValidacionesAtributos.validarNumeroNagativo(edad, "Edad");
+        if (edad < 18) throw new EdadInvalidaException("La edad mínima permitida es 18");
         this.edad = edad;
     }
 
-    public Genero getGenero() {
-        return genero;
+    public GeneroPersona getGenero() {
+        return generoPersona;
     }
 
-    public void setGenero(Genero genero) {
-        ValidacionesAtributos.validarObjetosNulo(genero, "Genero");
-        this.genero = genero;
+    public void setGenero(GeneroPersona generoPersona) {
+        ValidacionesAtributos.validarObjetoNulo(generoPersona, "género de la persona");
+        this.generoPersona = generoPersona;
     }
 
     public int getIdentificacion() {
@@ -68,20 +79,8 @@ public class Usuario {
     }
 
     public void setIdentificacion(int identificacion) {
-        ValidacionesAtributos.validarNumeroNagativo(identificacion, "Identificacion");
+        ValidacionesAtributos.validarPositivo(identificacion, "identificación");
         this.identificacion = identificacion;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Usuario usuario = (Usuario) o;
-        return identificacion == usuario.identificacion;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(identificacion);
     }
 
     @Override
@@ -91,7 +90,7 @@ public class Usuario {
         sb.append(", nombre='").append(nombre).append('\'');
         sb.append(", apellido='").append(apellido).append('\'');
         sb.append(", edad=").append(edad);
-        sb.append(", genero=").append(genero);
+        sb.append(", generoPersona=").append(generoPersona);
         sb.append(", identificacion=").append(identificacion);
         sb.append('}');
         return sb.toString();

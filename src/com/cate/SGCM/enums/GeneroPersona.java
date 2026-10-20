@@ -1,6 +1,6 @@
 package com.cate.SGCM.enums;
 
-public enum Genero {
+public enum GeneroPersona {
     MASCULINO,
     FEMENINO;
 }
