@@ -12,19 +12,19 @@ public class UsuarioService {
     private final BoletoRepository boleto;
 
     public UsuarioService(UsuarioRepository repositoryUsuario, BoletoRepository boleto) {
-        ValidacionesAtributos.validarObjetosNulo(repositoryUsuario, "Repository");
-        ValidacionesAtributos.validarObjetosNulo(boleto, "Boleto");
+        ValidacionesAtributos.validarObjetoNulo(repositoryUsuario, "repositorio de usuarios");
+        ValidacionesAtributos.validarObjetoNulo(boleto, "repositorio de boletos");
         this.repositoryUsuario = repositoryUsuario;
         this.boleto = boleto;
     }
 
     public boolean registrarUsuario(Usuario usuarioPorGuardar) {
-        ValidacionesAtributos.validarObjetosNulo(usuarioPorGuardar, "Usuario");
+        ValidacionesAtributos.validarObjetoNulo(usuarioPorGuardar, "usuario");
         return repositoryUsuario.guardarUsuario(usuarioPorGuardar);
     }
 
     public Usuario buscarUsuario(int identificacionUsuario) {
-        ValidacionesAtributos.validarNumeroNagativo(identificacionUsuario, "Identificacion");
+        ValidacionesAtributos.validarPositivo(identificacionUsuario, "identificación");
         return repositoryUsuario.buscarUsuario(identificacionUsuario);
     }
 
@@ -38,7 +38,7 @@ public class UsuarioService {
     }
 
     public boolean eliminarUsuario(int identificacion) {
-        ValidacionesAtributos.validarNumeroNagativo(identificacion, "identificación");
+        ValidacionesAtributos.validarPositivo(identificacion, "identificación");
         boolean tieneBoletosUsuario = boleto.buscarBoletosActivosUsuario(identificacion);
         if (!tieneBoletosUsuario) {
             return repositoryUsuario.eliminarUsuario(identificacion);

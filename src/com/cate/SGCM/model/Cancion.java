@@ -4,8 +4,16 @@ import com.cate.SGCM.enums.GeneroMusical;
 import com.cate.SGCM.util.GeneradorId;
 import com.cate.SGCM.util.ValidacionesAtributos;
 
+/**
+ * Canción del repertorio de una {@link Banda}.
+ *
+ * Su identidad es el {@code id} generado, no el nombre: el nombre es editable, así que no puede
+ * usarse como clave. Los setters protegen los invariantes de la clase (nombre no vacío, género no
+ * nulo, duración y año positivos) y son de acceso de paquete para que la modificación pase siempre
+ * por {@link Banda}.
+ */
 public class Cancion {
-    private int id;
+    private final int id;
     private String nombre;
     private GeneroMusical generoMusical;
     private int duracion;
@@ -28,7 +36,7 @@ public class Cancion {
     }
 
     public void setNombre(String nombre) {
-        ValidacionesAtributos.validarNullVacio(nombre, "Nombre");
+        ValidacionesAtributos.validarNullVacio(nombre, "nombre");
         this.nombre = nombre;
     }
 
@@ -36,8 +44,8 @@ public class Cancion {
         return generoMusical;
     }
 
-    public void setGeneroMusical(GeneroMusical generoMusical) {
-        ValidacionesAtributos.validarObjetosNulo(generoMusical, "GeneroMusical");
+    void setGeneroMusical(GeneroMusical generoMusical) {
+        ValidacionesAtributos.validarObjetoNulo(generoMusical, "género musical");
         this.generoMusical = generoMusical;
     }
 
@@ -45,8 +53,8 @@ public class Cancion {
         return duracion;
     }
 
-    public void setDuracion(int duracion) {
-        ValidacionesAtributos.validarNumeroNagativo(duracion, "Duracion");
+    void setDuracion(int duracion) {
+        ValidacionesAtributos.validarPositivo(duracion, "duración");
         this.duracion = duracion;
     }
 
@@ -54,8 +62,8 @@ public class Cancion {
         return anioLanzamiento;
     }
 
-    public void setAnioLanzamiento(int anioLanzamiento) {
-        ValidacionesAtributos.validarNumeroNagativo(anioLanzamiento, "Año de Lanzamiento");
+    void setAnioLanzamiento(int anioLanzamiento) {
+        ValidacionesAtributos.validarPositivo(anioLanzamiento, "año de lanzamiento");
         this.anioLanzamiento = anioLanzamiento;
     }
 

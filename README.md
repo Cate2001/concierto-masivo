@@ -103,11 +103,11 @@ Cada colección responde a criterios funcionales **y** de rendimiento:
 
 ### Enumeradores
 
-- `EstadoBoleta`: ACTIVO, VENDIDO, CANCELADO
+- `EstadoBoleto`: ACTIVO, VENDIDO, CANCELADO
 - `EstadoConcierto`: PROGRAMADO, EN_CURSO, FINALIZADO, CANCELADO
-- `Genero`: MASCULINO, FEMENINO
+- `GeneroPersona`: MASCULINO, FEMENINO
 - `GeneroMusical`: POP, ROCK, JAZZ, ELECTRONICA, CLASICA, FOLK, HIP_HOP, BLUES
-- `TipoBoleta`: VIP (zona "VIP", $150.00), GENERAL (zona "General", $50.00) — enum con atributos, que encapsula el precio y la zona de cada tipo de boleta
+- `TipoBoleto`: VIP (zona "VIP", $150.00), GENERAL (zona "General", $50.00) — enum con atributos, que encapsula el precio y la zona de cada tipo de boleta
 
 ### Buenas Prácticas Implementadas
 
