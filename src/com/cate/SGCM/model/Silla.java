@@ -17,10 +17,10 @@ class Silla {
     private final int id;
     private final String fila;
     private final int columna;
-    private final TipoBoleto categoria;
+    private final Categoria categoria;
     private boolean disponible;
 
-    public Silla(String fila, int columna, TipoBoleto categoria) {
+    public Silla(String fila, int columna, Categoria categoria) {
         this.id = GeneradorId.generarIdSilla();
         this.fila = fila;
         this.columna = columna;
@@ -40,7 +40,7 @@ class Silla {
         return columna;
     }
 
-    public TipoBoleto getCategoria() {
+    public Categoria getCategoria() {
         return categoria;
     }
 

@@ -2,13 +2,14 @@ package com.cate.SGCM.services;
 
 
 import com.cate.SGCM.model.*;
+import com.cate.SGCM.repository.RepositorioGenerico;
 import com.cate.SGCM.util.ValidacionesAtributos;
 
 import java.util.Set;
 
 public class UsuarioService {
     //registrar un usuario para que pueda existir en el sistema y alamcenarlo en una coleccion
-    private final UsuarioRepository repositoryUsuario;
+    private final RepositorioGenerico repositoryUsuario;
     private final BoletoRepository boleto;
 
     public UsuarioService(UsuarioRepository repositoryUsuario, BoletoRepository boleto) {

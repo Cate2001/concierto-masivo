@@ -1,16 +1,15 @@
 package com.cate.SGCM.model;
 
 import com.cate.SGCM.enums.EstadoConcierto;
+import com.cate.SGCM.exception.PrecioBaseInsuficienteException;
 import com.cate.SGCM.util.GeneradorId;
 import com.cate.SGCM.util.ValidacionesAtributos;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * Evento musical celebrado en un {@link Estadio} e interpretado por una {@link Banda}.
- *
+ * <p>
  * Nace siempre en estado {@code PROGRAMADO} y desde ahí avanza por el ciclo
  * {@code PROGRAMADO → EN_CURSO → FINALIZADO}, o se corta por {@code CANCELADO}. El estado es de
  * solo lectura desde fuera: forma parte del ciclo de vida del evento, no de sus datos editables.
@@ -18,25 +17,35 @@ import java.util.Date;
 public class Concierto {
     private final int id;
     private String nombre;
+    private double precioGeneral;
+    private double precioVip;
     private EstadoConcierto estado;
-    private Date fechaInicio;
-    private LocalTime horaInicio;
     private Estadio estadio;
     private Banda banda;
+    private LocalDateTime fechaInicio;
+    private LocalDateTime fechaFin;
+    private LocalDateTime canceladoEn;
 
     //agregar estados dentro del sistema
     //cuando se crea un concierto, su estado es PROGRAMADO
     //el dia que inica el concierto pasa a esatdo en curso
     //el dia que finaliza el concierto pasa a esatdo finalizado
 
-    public Concierto(Date fechaInicio, String nombre, LocalTime horaInicio, Estadio estadio, Banda banda) {
+    public Concierto(String nombre, double precioGeneral, double precioVip, LocalDateTime fechaInicio, LocalDateTime fechaFin, Estadio estadio, Banda banda) {
         this.id = GeneradorId.generarIdConcierto();
-        setFechaInicio(fechaInicio);
-        setNombre(nombre);
         this.estado = EstadoConcierto.PROGRAMADO;
-        setHoraInicio(horaInicio);
+        validarFecha(fechaInicio);
+        validarFecha(fechaFin);
+
+        setNombre(nombre);
+        setPrecioGeneral(precioGeneral);
+        setPrecioVip(precioVip);
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
         setEstadio(estadio);
         setBanda(banda);
+
+
     }
 
     public int getId() {
@@ -52,28 +61,28 @@ public class Concierto {
         this.nombre = nombre;
     }
 
-    public Date getFechaInicio() {
+    public double getPrecioGeneral() {
+        return precioGeneral;
+    }
+
+    public void setPrecioGeneral(double precioGeneral) {
+        if (precioGeneral < 30000)
+            throw new PrecioBaseInsuficienteException("El precio base del concierto debe ser de $30.000 COP o más");
+        this.precioGeneral = precioGeneral;
+    }
+
+    public double getPrecioVip() {
+        return precioVip;
+    }
+
+    public void setPrecioVip(double precioVip) {
+        if (precioGeneral < 60000)
+            throw new PrecioBaseInsuficienteException("El precio base del concierto debe ser de $30.000 COP o más");
+        this.precioVip = precioVip;
+    }
+
+    public LocalDateTime getFechaInicio() {
         return fechaInicio;
-    }
-
-    /**
-     * Asigna la fecha de inicio del concierto.
-     *
-     * @param fechaInicio fecha del evento; no puede ser {@code null}
-     * @throws NullPointerException si {@code fechaInicio} es {@code null}
-     */
-    public void setFechaInicio(Date fechaInicio) {
-        validarFecha(fechaInicio);
-        this.fechaInicio = fechaInicio;
-    }
-
-    public LocalTime getHoraInicio() {
-        return horaInicio;
-    }
-
-    public void setHoraInicio(LocalTime horaInicio) {
-        ValidacionesAtributos.validarObjetoNulo(horaInicio, "hora de inicio");
-        this.horaInicio = horaInicio;
     }
 
     public Estadio getEstadio() {
@@ -94,19 +103,35 @@ public class Concierto {
         this.banda = banda;
     }
 
-    private void validarFecha(Date fecha) {
+    public EstadoConcierto getEstado() {
+        return estado;
+    }
+
+    private void validarFecha(LocalDateTime fecha) {
         if (fecha == null) {
-            throw new NullPointerException("La fecha no puede ser nula");
+            throw new NullPointerException("La fecha del concierto no puede ser nula");
         }
 
-        try {
-            SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
-            formato.setLenient(false);
-            formato.format(fecha);
-
-        } catch (Exception e) {
-            throw new IllegalArgumentException("La fecha no es válida");
+        if (fecha.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("La fecha debe ser igual o posterior a la fecha y hora actual.");
         }
+    }
+
+    public void reprogramarConcierto(LocalDateTime fechaInicioNueva) {
+        validarFecha(fechaInicioNueva);
+        if (getEstado() != EstadoConcierto.PROGRAMADO) {
+            throw new IllegalStateException("No se puede reprogramar un concierto en estado " + getEstado() + "; sólo en PROGRAMADO");
+        }
+
+        this.fechaInicio = fechaInicioNueva;
+    }
+
+    private void cancelarConcierto() {
+        if (getEstado() != EstadoConcierto.PROGRAMADO) {
+            throw new IllegalStateException("No se puede cancelar un concierto en estado " + getEstado() + "; sólo en PROGRAMADO");
+        }
+        this.estado = EstadoConcierto.CANCELADO;
+
     }
 
     @Override
@@ -115,7 +140,6 @@ public class Concierto {
         sb.append("id=").append(id);
         sb.append(", nombre='").append(nombre).append('\'');
         sb.append(", fechaInicio=").append(fechaInicio);
-        sb.append(", horaInicio=").append(horaInicio);
         sb.append(", estadio=").append(estadio);
         sb.append(", banda=").append(banda);
         sb.append('}');
