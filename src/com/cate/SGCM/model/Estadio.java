@@ -84,7 +84,7 @@ public class Estadio {
         }
     }
 
-    private void agregarSilla(String letraFila, int numeroSilla, TipoBoleto categoria) {
+    private void agregarSilla(String letraFila, int numeroSilla, Categoria categoria) {
         Silla silla = new Silla(letraFila, numeroSilla, categoria);
         sillasEstadio.add(silla);
     }
@@ -112,9 +112,9 @@ public class Estadio {
             }
             for (int j = 0; j < sillasPorFila; j++) {
                 if (filasVip > i) {
-                    agregarSilla(letraFila, numeroSilla, TipoBoleto.VIP);
+                    agregarSilla(letraFila, numeroSilla, Categoria.VIP);
                 } else {
-                    agregarSilla(letraFila, numeroSilla, TipoBoleto.GENERAL);
+                    agregarSilla(letraFila, numeroSilla, Categoria.GENERAL);
                 }
                 numeroSilla++;
             }

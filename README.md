@@ -107,7 +107,7 @@ Cada colección responde a criterios funcionales **y** de rendimiento:
 - `EstadoConcierto`: PROGRAMADO, EN_CURSO, FINALIZADO, CANCELADO
 - `GeneroPersona`: MASCULINO, FEMENINO
 - `GeneroMusical`: POP, ROCK, JAZZ, ELECTRONICA, CLASICA, FOLK, HIP_HOP, BLUES
-- `TipoBoleto`: VIP (zona "VIP", $150.00), GENERAL (zona "General", $50.00) — enum con atributos, que encapsula el precio y la zona de cada tipo de boleta
+- `Categoria`: VIP (zona "VIP", $150.00), GENERAL (zona "General", $50.00) — enum con atributos, que encapsula el precio y la zona de cada tipo de boleta
 
 ### Buenas Prácticas Implementadas
 
