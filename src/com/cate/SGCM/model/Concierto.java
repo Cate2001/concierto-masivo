@@ -76,7 +76,7 @@ public class Concierto {
     }
 
     public void setPrecioVip(double precioVip) {
-        if (precioGeneral < 60000)
+        if (precioVip < 60000)
             throw new PrecioBaseInsuficienteException("El precio base del concierto debe ser de $30.000 COP o más");
         this.precioVip = precioVip;
     }
